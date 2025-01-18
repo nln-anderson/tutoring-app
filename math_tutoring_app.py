@@ -68,6 +68,7 @@ class InsertWindow(QMainWindow):
 
         self.build_widgets()
         self.build_layout()
+        self.assign_functions()
 
     def build_widgets(self) -> None:
         """Creates all the widgets used by this window"""
@@ -85,17 +86,22 @@ class InsertWindow(QMainWindow):
         layout.addWidget(self.record_label)
         layout.addWidget(self.options)
 
-        widget = QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.top_widget = QWidget()
+        self.top_widget.setLayout(layout)
+        self.setCentralWidget(self.top_widget)
 
     def assign_functions(self) -> None:
         """Assigns functionality to the widgets."""
-        self.options.currentIndexChanged.connect(self.test_func)
+        self.options.currentIndexChanged.connect(self.options_handler)
 
     # Functions
-    def test_func(self):
-        print("Hello")
+    def student_records(self) -> None:
+        """This sets up the window for student record entry"""
+        print("You made it")
+
+    def options_handler(self, index):
+        if index == 1:
+            self.student_records()
 
 class DB_Window(QMainWindow):
     """This class represents the window for the database connection option."""

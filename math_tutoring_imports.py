@@ -53,7 +53,9 @@ class CustomToolbar(QToolBar):
     def functionality_testing(self) -> None:
         print("Hello")
 
-
+class TableWindow(QSqlTableModel):
+    """This window is for viewing and selecting SQL data"""
+    
 
 if __name__ == "__main__":
     app = QApplication([])

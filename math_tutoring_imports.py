@@ -1,5 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QToolBar
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QToolBar, QAction, QMainWindow, QApplication
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSize
+from PyQt5.QtSql import QSqlTableModel
 
 class LabeledInput(QWidget):
     def __init__(self, label_text, placeholder_text="", parent=None):
@@ -26,12 +28,41 @@ class LabeledInput(QWidget):
     
 class CustomToolbar(QToolBar):
     """Custom toolbar for navigating."""
+    # Instance variables
+    view_picklist: QAction
+    previous: QAction
+    next: QAction 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setIconSize(QSize(16,16))
+        self.setup_actions()
 
     def setup_actions(self) -> None:
-        """Sets up all the actions for this toolbar"""
-        view_picklist = QLabel(QIcon("binoculars.png"), "View All", self)
+        """Sets up all the actions for this toolbar."""
+        self.view_picklist = QAction(QIcon("binoculars.png"), "View All", self)
+        self.view_picklist.triggered.connect(self.functionality_testing)
+        self.addAction(self.view_picklist)
+
+        self.previous = QAction("<", self)
+        self.addAction(self.previous)
+
+        self.next = QAction(">", self)
+        self.addAction(self.next)
+
+    def functionality_testing(self) -> None:
+        print("Hello")
+
+
 
 if __name__ == "__main__":
-    pass
+    app = QApplication([])
+
+    window = QMainWindow()
+
+    toolbar = CustomToolbar()
+
+    window.addToolBar(toolbar)
+
+    window.show()
+    app.exec_()

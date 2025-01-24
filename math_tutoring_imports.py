@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QToolBar, QAction, QMainWindow, QApplication
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
-from PyQt5.QtSql import QSqlTableModel
+from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QHBoxLayout, QToolBar, QAction, QMainWindow, QApplication, QTableView, QPushButton, QVBoxLayout, QDialog
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
+from PyQt5.QtCore import QSize, QAbstractTableModel
+from PyQt5.QtSql import QSqlTableModel, QSqlDatabase
+from sqlalchemy import create_engine, MetaData, Table, select
+from sqlalchemy.orm import sessionmaker
 
 class LabeledInput(QWidget):
     def __init__(self, label_text, placeholder_text="", parent=None):
@@ -25,7 +27,12 @@ class LabeledInput(QWidget):
 
     def set_text(self, text):
         self.text_field.setText(text)
-    
+
+class TestWindow(QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
 class CustomToolbar(QToolBar):
     """Custom toolbar for navigating."""
     # Instance variables
@@ -53,17 +60,12 @@ class CustomToolbar(QToolBar):
     def functionality_testing(self) -> None:
         print("Hello")
 
-class TableWindow(QSqlTableModel):
-    """This window is for viewing and selecting SQL data"""
-    
 
 if __name__ == "__main__":
     app = QApplication([])
 
-    window = QMainWindow()
-
+    window = TestWindow()
     toolbar = CustomToolbar()
-
     window.addToolBar(toolbar)
 
     window.show()

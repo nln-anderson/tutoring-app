@@ -163,6 +163,7 @@ class DB_Window(QMainWindow):
         connection.setPort(int(port_db))
         connection.open(user_db, password_db)
         database_engine = connection
+        
         if connection.isOpen():
             msg = QMessageBox()
             msg.setText("Connection Successful")

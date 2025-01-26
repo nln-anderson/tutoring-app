@@ -1,8 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout, QMenuBar, QLineEdit, QMessageBox, QComboBox, QTableView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout, QMenuBar, QLineEdit, QMessageBox, QComboBox, QTableView, QDialog
 from PyQt5.QtCore import Qt
 import math_tutoring_imports as mti
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
+import picklist_imports as pi
 
 class HomeWindow(QMainWindow):
     """Child class of the main window object."""
@@ -62,6 +63,9 @@ class HomeWindow(QMainWindow):
         self.insert_window.show()
 
 class InsertWindow(QMainWindow):
+    # Instance vars
+    row_id: int # ID of selected row from picklist
+
     """This window is for entering in new records to the database."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -81,14 +85,33 @@ class InsertWindow(QMainWindow):
     
     def build_layout(self) -> None:
         """Builds the layout of the window"""
-        layout = QHBoxLayout()
+        # Overarching layout
+        self.parent_layout = QVBoxLayout()
 
-        layout.addWidget(self.record_label)
-        layout.addWidget(self.options)
+        # Layout for the top buttons
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(self.record_label)
+        top_layout.addWidget(self.options)
 
-        self.top_widget = QWidget()
-        self.top_widget.setLayout(layout)
-        self.setCentralWidget(self.top_widget)
+        # Layout for field entries. This will be edited when a subsection is selected.
+        self.field_layout = QVBoxLayout()
+        fields_label = QLabel(text="Fields:")
+        self.field_layout.addWidget(fields_label)
+
+        # Layout for the buttons at the bottom
+        self.button_layout = QHBoxLayout()
+        self.accept_button = QPushButton(text="Accept")
+        self.cancel_button = QPushButton(text="Cancel")
+        self.button_layout.addWidget(self.accept_button)
+        self.button_layout.addWidget(self.cancel_button)
+
+        # Adding the layouts to the parent
+        self.parent_layout.addLayout(top_layout)
+        self.parent_layout.addLayout(self.field_layout)
+        self.parent_layout.addLayout(self.button_layout)
+        self.parent_widget = QWidget()
+        self.parent_widget.setLayout(self.parent_layout)
+        self.setCentralWidget(self.parent_widget)
 
     def assign_functions(self) -> None:
         """Assigns functionality to the widgets."""
@@ -97,11 +120,36 @@ class InsertWindow(QMainWindow):
     # Functions
     def student_records(self) -> None:
         """This sets up the window for student record entry"""
-        print("You made it")
+        self.toolbar = mti.CustomToolbar()
+        self.addToolBar(self.toolbar)
+        self.toolbar.view_picklist.triggered.connect(self.open_picklist_students)
+
+        self.first_name_LI = mti.LabeledInput("First Name:")
+        self.last_name_LI = mti.LabeledInput("Last Name:")
+        self.math_level_LI = mti.LabeledInput("Math Level:")
+        self.grade_level_LI = mti.LabeledInput("Grade Level:")
+        self.school_LI = mti.LabeledInput("School:")
+        
+        self.field_layout.addWidget(self.first_name_LI)
+        self.field_layout.addWidget(self.last_name_LI)
+        self.field_layout.addWidget(self.math_level_LI)
+        self.field_layout.addWidget(self.grade_level_LI)
+        self.field_layout.addWidget(self.school_LI)
 
     def options_handler(self, index):
+        """This guides the selection to execute the proper function to update the window."""
         if index == 1:
             self.student_records()
+        elif index == 0:
+            pass
+        if index ==2:
+            self.sessions_records()
+
+    def open_picklist_students(self) -> None:
+        """Opens a dialog box and returns the ID of selected row."""
+        pick_list = pi.PickListDialog(table_name="students")
+        if pick_list.exec_() == QDialog.Accepted:
+                self.row_id = pick_list.get_selected_row_id()
 
 class DB_Window(QMainWindow):
     """This class represents the window for the database connection option."""

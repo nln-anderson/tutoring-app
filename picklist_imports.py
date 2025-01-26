@@ -41,11 +41,13 @@ class TableWindow(QMainWindow):
 
 class PickListDialog(QDialog):
     """This is a proper picklist dialog."""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, table_name: str):
+        super().__init__()
+        self.table_name = table_name
         self.setWindowTitle("Picklist")
         self.resize(1000, 500)
-        self.selected_row = None
+        self.setModal(True)
+        self.selected_row_index = None
 
         self.create_QTableView()
         self.build_buttons()
@@ -54,7 +56,7 @@ class PickListDialog(QDialog):
     def create_QTableView(self) -> None:
         self.table_view = QTableView()
         self.model = QSqlTableModel()
-        self.model.setTable("students")
+        self.model.setTable(self.table_name)
         self.table_view.setModel(self.model)
         self.model.select()
 
@@ -81,24 +83,39 @@ class PickListDialog(QDialog):
         self.setLayout(layout)
 
     def accept_selection(self):
+        # First get the selected object
         selected_indexes = self.table_view.selectionModel().selectedRows()
         print(selected_indexes[0].row())
+
+        # If the selected object exists, find the ID of the selected row
         if selected_indexes:
             selected_row = selected_indexes[0].row()
-            self.selected_row = [
-                self.model.data(self.model.index(selected_row, col))
-                for col in range(self.model.columnCount())
-            ]
+            self.selected_row_index = self.model.data(self.model.index(selected_row, 0))
         self.accept()
-        self.get_selected_row()
 
-    def get_selected_row(self):
-        print(self.selected_row)
-        return self.selected_row
+    def get_selected_row_id(self):
+        print(self.selected_row_index)
+        return self.selected_row_index
+
+class TestWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Main Window")
+
+        self.button = QPushButton("Open Dialog", self)
+        self.button.clicked.connect(self.open_dialog)
+        self.setCentralWidget(self.button)
+    
+    def open_dialog(self):
+        dialog = PickListDialog("students")
+        if dialog.exec_() == QDialog.Accepted:  # Check if dialog was accepted
+            value = dialog.get_selected_row_id()
 
 if __name__ == "__main__":
-    app = QApplication([])
-    database_test()
-    window = PickListDialog()
-    window.show()
-    app.exec_()
+    # app = QApplication([])
+    # database_test()
+    # mainwindow = TestWindow()
+    # mainwindow.show()
+    
+    # app.exec_()
+    pass

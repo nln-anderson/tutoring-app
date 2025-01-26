@@ -33,7 +33,7 @@ class TestWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
 
-class CustomToolbar(QToolBar):
+class CustomToolbar_test(QToolBar):
     """Custom toolbar for navigating."""
     # Instance variables
     view_picklist: QAction
@@ -42,7 +42,7 @@ class CustomToolbar(QToolBar):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setIconSize(QSize(16,16))
+        self.setIconSize(QSize(32,32))
         self.setup_actions()
 
     def setup_actions(self) -> None:
@@ -60,12 +60,35 @@ class CustomToolbar(QToolBar):
     def functionality_testing(self) -> None:
         print("Hello")
 
+class CustomToolbar(QToolBar):
+    """Custom toolbar for navigating."""
+    # Instance variables
+    view_picklist: QAction
+    previous: QAction
+    next: QAction 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setIconSize(QSize(32,32))
+        self.setup_actions()
+
+    def setup_actions(self) -> None:
+        """Sets up all the actions for this toolbar."""
+        self.view_picklist = QAction(QIcon("binoculars.png"), "View All", self)
+        self.addAction(self.view_picklist)
+
+        self.previous = QAction("<", self)
+        self.addAction(self.previous)
+
+        self.next = QAction(">", self)
+        self.addAction(self.next)
+
 
 if __name__ == "__main__":
     app = QApplication([])
 
     window = TestWindow()
-    toolbar = CustomToolbar()
+    toolbar = CustomToolbar_test()
     window.addToolBar(toolbar)
 
     window.show()

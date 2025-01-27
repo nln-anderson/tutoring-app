@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QHBoxLayout, QMenuBar, QLineEdit, QMessageBox, QComboBox, QTableView, QDialog
 from PyQt5.QtCore import Qt
 import math_tutoring_imports as mti
-from PyQt5.QtSql import QSqlDatabase, QSqlTableModel
+from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlQuery
 import picklist_imports as pi
 
 class HomeWindow(QMainWindow):
@@ -64,7 +64,7 @@ class HomeWindow(QMainWindow):
 
 class InsertWindow(QMainWindow):
     # Instance vars
-    row_id: int # ID of selected row from picklist
+    row_id: int # ID of selected row that is currently displayed
 
     """This window is for entering in new records to the database."""
     def __init__(self, *args, **kwargs):
@@ -136,6 +136,39 @@ class InsertWindow(QMainWindow):
         self.field_layout.addWidget(self.grade_level_LI)
         self.field_layout.addWidget(self.school_LI)
 
+        # Now it needs to get the first entry in the table and autofill the data
+        query = QSqlQuery()
+        query.exec(
+            """
+            SELECT MIN(id)
+            FROM students
+            """
+        )
+        query.first()
+        self.row_id = query.value(0)
+        self.fill_fields()
+        
+    def fill_fields(self) -> None:
+        """This function fills in the fields data based on the row_id instance variable."""
+        # Getting the values we are looking for with the matching ID
+        query = QSqlQuery()
+        query.exec(
+            f"""
+            SELECT first_name, last_name, math_level, grade_level, school
+            FROM students
+            WHERE id={self.row_id}
+            """
+        )
+        first_name, last_name, math_level, grade_level, school = range(5)
+        query.first()
+
+        # Setting the line edit fields by calling the set_text function
+        self.first_name_LI.set_text(str(query.value(first_name)))
+        self.last_name_LI.set_text(str(query.value(last_name)))
+        self.math_level_LI.set_text(str(query.value(math_level)))
+        self.grade_level_LI.set_text(str(query.value(grade_level)))
+        self.school_LI.set_text(str(query.value(school)))
+
     def options_handler(self, index):
         """This guides the selection to execute the proper function to update the window."""
         if index == 1:
@@ -149,7 +182,8 @@ class InsertWindow(QMainWindow):
         """Opens a dialog box and returns the ID of selected row."""
         pick_list = pi.PickListDialog(table_name="students")
         if pick_list.exec_() == QDialog.Accepted:
-                self.row_id = pick_list.get_selected_row_id()
+            self.row_id = pick_list.get_selected_row_id()
+            self.fill_fields()
 
 class DB_Window(QMainWindow):
     """This class represents the window for the database connection option."""

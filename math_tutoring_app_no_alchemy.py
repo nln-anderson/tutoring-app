@@ -59,7 +59,7 @@ class HomeWindow(QMainWindow):
         self.db_window.show()
     
     def create_add_insert_window(self) -> None:
-        self.insert_window = InsertWindow()
+        self.insert_window = InsertWindow(parent=self)
         self.insert_window.show()
 
 class InsertWindow(QMainWindow):
@@ -100,9 +100,9 @@ class InsertWindow(QMainWindow):
 
         # Layout for the buttons at the bottom
         self.button_layout = QHBoxLayout()
-        self.accept_button = QPushButton(text="Accept")
+        self.update_button = QPushButton(text="Update")
         self.cancel_button = QPushButton(text="Cancel")
-        self.button_layout.addWidget(self.accept_button)
+        self.button_layout.addWidget(self.update_button)
         self.button_layout.addWidget(self.cancel_button)
 
         # Adding the layouts to the parent
@@ -116,6 +116,7 @@ class InsertWindow(QMainWindow):
     def assign_functions(self) -> None:
         """Assigns functionality to the widgets."""
         self.options.currentIndexChanged.connect(self.options_handler)
+        self.update_button.clicked.connect(self.accept_changes)
 
     # Functions
     def student_records(self) -> None:
@@ -147,7 +148,28 @@ class InsertWindow(QMainWindow):
         query.first()
         self.row_id = query.value(0)
         self.fill_fields()
+    
+    def accept_changes(self) -> None:
+        """This function binds the changes made to the table and updates the values."""
+        print("Binding changes...")
+        # First, get the values from the fields
+        first_name = self.first_name_LI.get_text()
+        last_name = self.last_name_LI.get_text()
+        math_level = self.math_level_LI.get_text()
+        grade_level = self.grade_level_LI.get_text()
+        school = self.school_LI.get_text()
+
+        query = QSqlQuery()
+        print(f"Row ID: {self.row_id}")
+        query.exec(           
+            f"""
+            UPDATE students
+            SET first_name = '{first_name}', last_name = '{last_name}', math_level = '{math_level}', grade_level = {grade_level},
+                                school = '{school}'
+            WHERE id = {self.row_id}
+            """)
         
+
     def fill_fields(self) -> None:
         """This function fills in the fields data based on the row_id instance variable."""
         # Getting the values we are looking for with the matching ID
@@ -198,10 +220,10 @@ class DB_Window(QMainWindow):
 
     def build_widgets(self) -> None:
         """Creates all the widgets of this window."""
-        self.db_name_widget = mti.LabeledInput("Database Name:")
-        self.db_host_widget = mti.LabeledInput("DB Host:")
-        self.db_port_widget = mti.LabeledInput("DB Port:")
-        self.db_user_widget = mti.LabeledInput("DB Username:")
+        self.db_name_widget = mti.LabeledInput("Database Name:", placeholder_text="postgres")
+        self.db_host_widget = mti.LabeledInput("DB Host:", placeholder_text="localhost")
+        self.db_port_widget = mti.LabeledInput("DB Port:", placeholder_text="5432")
+        self.db_user_widget = mti.LabeledInput("DB Username:", placeholder_text="postgres")
         self.db_password_widget = mti.LabeledInput("DB Password:")
         self.db_password_widget.text_field.setEchoMode(QLineEdit.EchoMode.Password)
 
@@ -244,6 +266,7 @@ class DB_Window(QMainWindow):
         connection.setHostName(host_db)
         connection.setPort(int(port_db))
         connection.open(user_db, password_db)
+        global database_engine
         database_engine = connection
         
         if connection.isOpen():
@@ -259,7 +282,6 @@ class DB_Window(QMainWindow):
             msg.exec_()
 
 def main():
-    database_engine = None
 
     app = QApplication([])
 

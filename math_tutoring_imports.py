@@ -12,7 +12,7 @@ class LabeledInput(QWidget):
         # Create label and text field
         self.label = QLabel(label_text)
         self.text_field = QLineEdit()
-        self.text_field.setPlaceholderText(placeholder_text)
+        self.text_field.setText(placeholder_text)
 
         # Layout for the widget
         layout = QHBoxLayout()
@@ -39,16 +39,17 @@ class CustomToolbar_test(QToolBar):
     view_picklist: QAction
     previous: QAction
     next: QAction 
+    table_name: str # name of the table to connect
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, table_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.table_name = table_name
         self.setIconSize(QSize(32,32))
         self.setup_actions()
 
     def setup_actions(self) -> None:
         """Sets up all the actions for this toolbar."""
         self.view_picklist = QAction(QIcon("binoculars.png"), "View All", self)
-        self.view_picklist.triggered.connect(self.functionality_testing)
         self.addAction(self.view_picklist)
 
         self.previous = QAction("<", self)
@@ -56,6 +57,12 @@ class CustomToolbar_test(QToolBar):
 
         self.next = QAction(">", self)
         self.addAction(self.next)
+    
+    def assign_functions(self) -> None:
+        """This assigns the binocular and next/previous record buttons."""
+        self.view_picklist.triggered.connect()
+
+    
 
     def functionality_testing(self) -> None:
         print("Hello")
